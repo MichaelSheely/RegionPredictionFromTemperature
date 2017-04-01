@@ -4,10 +4,14 @@ import os.path
 TEMPERATURES_FILE = 'data/USCityTemperaturesAfter1850.csv'
 CITY_STATE_FILE = 'data/city_state.csv'
 
-def load_data(path='data/GlobalLandTemperaturesbyCity.csv', ignore_before=1850):
+def filter_and_save_data(path='data/GlobalLandTemperaturesbyCity.csv', ignore_before=1850):
     out = pd.read_csv(path, header=0)
     us = out.loc[out['Country'] == 'United States']
-    us = us.loc[us['dt'] > 1850]
+    # lexicograpical comparison of strings makes this work for any 4 digit year
+    us = us[us['dt'] > '1850']  
+    # delete the old index and Country code
+    us.drop('Country', axis=1, inplace=True)
+    us.reset_index(drop=True, inplace=True)
     us.to_csv(TEMPERATURES_FILE)
     return us
 
@@ -25,7 +29,7 @@ def get_state(raw_string):
 
 def main():
     if not os.path.isfile(TEMPERATURES_FILE): # TODO: add force make file
-        load_data()
+        filter_and_save_data()
     data = pd.read_csv(TEMPERATURES_FILE)
     if not os.path.isfile(CITY_STATE_FILE):
         city_country()

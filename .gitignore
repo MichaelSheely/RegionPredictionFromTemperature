@@ -1,5 +1,6 @@
 *.pyc
-
+*.sw*
+.DS_Store
 
 data/GlobalLandTemperaturesByCity.csv
 data/GlobalLandTemperaturesByCountry.csv
@@ -7,5 +8,6 @@ data/GlobalLandTemperaturesByMajorCity.csv
 data/GlobalLandTemperaturesByState.csv
 data/GlobalTemperatures.csv
 data/USCityTemperaturesAfter1850.csv
+data/city_state.csv
 
 # We want to commit data/StatesAndRegions.csv and data/RawUSData.csv

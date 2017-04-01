@@ -27,7 +27,9 @@ def main():
     if not os.path.isfile(TEMPERATURES_FILE): # TODO: add force make file
         load_data()
     data = pd.read_csv(TEMPERATURES_FILE)
-    city_country()
+    if not os.path.isfile(CITY_STATE_FILE):
+        city_country()
+    cities = pd.read_csv(CITY_STATE_FILE)
 
 if __name__ == "__main__":
     main()

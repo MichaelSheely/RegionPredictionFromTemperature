@@ -1,3 +1,11 @@
-data
 *.pyc
-*.sw*
+
+
+data/GlobalLandTemperaturesByCity.csv
+data/GlobalLandTemperaturesByCountry.csv
+data/GlobalLandTemperaturesByMajorCity.csv
+data/GlobalLandTemperaturesByState.csv
+data/GlobalTemperatures.csv
+data/USCityTemperaturesAfter1850.csv
+
+# We want to commit data/StatesAndRegions.csv and data/RawUSData.csv

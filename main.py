@@ -3,6 +3,7 @@ import os.path
 
 TEMPERATURES_FILE = 'data/USCityTemperaturesAfter1850.csv'
 CITY_STATE_FILE = 'data/city_state.csv'
+STATE_REGION_FILE = 'data/StatesAndRegions.csv'
 
 def filter_and_save_data(path='data/GlobalLandTemperaturesbyCity.csv', ignore_before=1850):
     out = pd.read_csv(path, header=0)
@@ -14,6 +15,14 @@ def filter_and_save_data(path='data/GlobalLandTemperaturesbyCity.csv', ignore_be
     us.reset_index(drop=True, inplace=True)
     us.to_csv(TEMPERATURES_FILE)
     return us
+
+def merge_data():
+    city_state = pd.read_csv(CITY_STATE_FILE)
+    state_region = pd.read_csv(STATE_REGION_FILE)
+    temperatures = pd.read_csv(TEMPERATURES_FILE)
+    joined_table = pd.merge(temperatures, city_state, how='left', on='City')
+    joined_table.to_csv("data/joined.csv")
+
 
 def city_country(raw_file='data/RawUSData.csv'):
     out = pd.read_csv(raw_file)

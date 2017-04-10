@@ -9,17 +9,18 @@ from geopy.exc import GeocoderServiceError
 TEMPERATURES_FILE = 'data/USCityTemperaturesAfter1850.csv'
 CITY_STATE_FILE = 'data/city_state.csv'
 STATE_REGION_FILE = 'data/StatesAndRegions.csv'
+FINAL_TEMPERATURES_FILE = 'data/labeled_data.csv' # TODO: Change all relevant files names to this constant.
 
 def add_state(path=TEMPERATURES_FILE):
     temp = pd.read_csv(path, header=0)
     only_unique = temp.sort_values(['City']).drop_duplicates(subset=['City','Latitude', 'Longitude'])
-    if not os.path.isfile('data/States.csv'): # TODO: add force make file
+    if not os.path.isfile('data/States.csv'):
         states = create_state_column(only_unique)
     else:
         states = pd.read_csv('data/States.csv', header=0)
     joined_table = pd.merge(temp, states, how='left', on=['City', 'Latitude', 'Longitude'])
     joined_table.to_csv('data/Temp.csv', index=False)
-    
+
 def create_state_column(us):
     geolocator = Nominatim()
     us = us.assign(State=np.nan)
@@ -48,7 +49,7 @@ def create_state_column(us):
         if location.raw['address']['country_code'] != 'us':
             print "ERRRRRROOORRRRR"
             return
-        try: 
+        try:
             state = location.raw['address']['state']
         except KeyError as e:
             if lat == '32.95N' and lon == '117.77W':
@@ -72,18 +73,18 @@ def filter_and_save_data(path='data/GlobalLandTemperaturesbyCity.csv', ignore_be
     out = pd.read_csv(path, header=0)
     us = out.loc[out['Country'] == 'United States']
     # lexicograpical comparison of strings makes this work for any 4 digit year
-    us = us[us['dt'] > '1850']  
+    us = us[us['dt'] > '1850']
     # delete the old index and Country code
     us.drop('Country', axis=1, inplace=True)
     us.reset_index(drop=True, inplace=True)
     us.to_csv(TEMPERATURES_FILE, index=False)
     return us
 
-def merge_data():
+def merge_data(to_merge='data/Temp.csv', new_file='data/joined.csv'):
     state_region = pd.read_csv(STATE_REGION_FILE, header=0)
-    temperatures = pd.read_csv('data/Temp.csv', header=0)
+    temperatures = pd.read_csv(to_merge, header=0)
     joined_table = pd.merge(temperatures, state_region, how='left', on='State')
-    joined_table.to_csv("data/joined.csv", index=False)
+    joined_table.to_csv(new_file, index=False)
 
 
 def city_country(raw_file='data/RawUSData.csv'):
@@ -106,6 +107,7 @@ def main():
         city_country()
     cities = pd.read_csv(CITY_STATE_FILE)
     add_state()
+    merge_data(to_merge='data/States.csv', new_file='data/CityRegions.csv')
     merge_data()
 
 if __name__ == "__main__":

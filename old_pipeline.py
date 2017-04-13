@@ -106,7 +106,6 @@ clf = DecisionTreeClassifier(criterion='entropy')
 
 
 y_pred = pipeline.predict(X_empty)
-print X_empty
 y_true = np.array(y_regions)
 from sklearn.metrics import accuracy_score
 

@@ -1,0 +1,258 @@
+City,Latitude,Longitude,State,Region
+Abilene,32.95N,100.53W,Texas,South
+Akron,40.99N,80.95W,Ohio,Midwest
+Albuquerque,34.56N,107.03W,New Mexico,West
+Alexandria,39.38N,76.99W,Maryland,South
+Allentown,40.99N,74.56W,New Jersey,Northeast
+Amarillo,34.56N,101.19W,Texas,South
+Anaheim,32.95N,117.77W,California,West
+Anchorage,61.88N,151.13W,Alaska,West
+Ann Arbor,42.59N,82.91W,Michigan,Midwest
+Antioch,37.78N,122.03W,California,West
+Arlington,39.38N,76.99W,Maryland,South
+Arlington,32.95N,96.70W,Texas,South
+Arvada,39.38N,106.13W,Colorado,West
+Atlanta,34.56N,83.68W,Georgia,South
+Aurora,40.99N,87.34W,Indiana,Midwest
+Aurora,39.38N,104.05W,Colorado,West
+Austin,29.74N,97.85W,Texas,South
+Bakersfield,36.17N,119.34W,California,West
+Baltimore,39.38N,76.99W,Maryland,South
+Baton Rouge,29.74N,90.46W,Louisiana,South
+Beaumont,29.74N,94.15W,Texas,South
+Bellevue,47.42N,121.97W,Washington,West
+Berkeley,37.78N,122.03W,California,West
+Birmingham,32.95N,87.13W,Alabama,South
+Boston,42.59N,72.00W,Massachusetts,Northeast
+Bridgeport,40.99N,72.43W,New York,Northeast
+Brownsville,26.52N,96.72W,Texas,South
+Buffalo,42.59N,78.55W,New York,Northeast
+Burbank,34.56N,118.70W,California,West
+Cambridge,42.59N,72.00W,Massachusetts,Northeast
+Cape Coral,26.52N,82.39W,Florida,South
+Carrollton,32.95N,96.70W,Texas,South
+Cary,36.17N,79.56W,North Carolina,South
+Cedar Rapids,42.59N,91.64W,Iowa,Midwest
+Chandler,32.95N,112.02W,Arizona,West
+Charleston,32.95N,79.47W,South Carolina,South
+Charlotte,34.56N,81.73W,South Carolina,South
+Chattanooga,34.56N,85.62W,Alabama,South
+Chesapeake,36.17N,75.58W,North Carolina,South
+Chicago,42.59N,87.27W,Illinois,Midwest
+Chula Vista,32.95N,117.77W,California,West
+Cincinnati,39.38N,85.32W,Indiana,Midwest
+Clarksville,36.17N,87.51W,Tennessee,South
+Clearwater,28.13N,82.73W,Florida,South
+Cleveland,40.99N,80.95W,Ohio,Midwest
+Colorado Springs,39.38N,104.05W,Colorado,West
+Columbia,34.56N,81.73W,South Carolina,South
+Columbus,39.38N,83.24W,Ohio,Midwest
+Columbus,32.95N,85.21W,Alabama,South
+Concord,37.78N,122.03W,California,West
+Coral Springs,26.52N,80.60W,Florida,South
+Corona,32.95N,117.77W,California,West
+Corpus Christi,28.13N,97.27W,Texas,South
+Costa Mesa,32.95N,117.77W,California,West
+Dallas,32.95N,96.70W,Texas,South
+Dayton,39.38N,83.24W,Ohio,Midwest
+Denton,32.95N,96.70W,Texas,South
+Denver,39.38N,104.05W,Colorado,West
+Des Moines,40.99N,93.73W,Iowa,Midwest
+Detroit,42.59N,82.91W,Michigan,Midwest
+Downey,34.56N,118.70W,California,West
+Durham,36.17N,79.56W,North Carolina,South
+East Los Angeles,34.56N,118.70W,California,West
+Edison,40.99N,74.56W,New Jersey,Northeast
+El Monte,34.56N,118.70W,California,West
+El Paso,31.35N,105.55W,Texas,South
+Elizabeth,40.99N,74.56W,New Jersey,Northeast
+Escondido,32.95N,117.77W,California,West
+Eugene,44.20N,122.98W,Oregon,West
+Evansville,37.78N,87.46W,Kentucky,South
+Fairfield,37.78N,122.03W,California,West
+Fayetteville,34.56N,79.78W,South Carolina,South
+Flint,42.59N,82.91W,Michigan,Midwest
+Fontana,34.56N,116.76W,California,West
+Fort Collins,40.99N,104.38W,Colorado,West
+Fort Lauderdale,26.52N,80.60W,Florida,South
+Fort Wayne,40.99N,85.21W,Indiana,Midwest
+Fort Worth,32.95N,96.70W,Texas,South
+Fremont,37.78N,122.03W,California,West
+Fresno,36.17N,119.34W,California,West
+Fullerton,32.95N,117.77W,California,West
+Gainesville,29.74N,83.08W,Florida,South
+Garden Grove,32.95N,117.77W,California,West
+Garland,32.95N,96.70W,Texas,South
+Gilbert,32.95N,112.02W,Arizona,West
+Glendale,34.56N,118.70W,California,West
+Glendale,32.95N,112.02W,Arizona,West
+Grand Prairie,32.95N,96.70W,Texas,South
+Grand Rapids,42.59N,85.09W,Michigan,Midwest
+Green Bay,44.20N,87.20W,Michigan,Midwest
+Greensboro,36.17N,79.56W,North Carolina,South
+Hampton,36.17N,75.58W,North Carolina,South
+Hartford,40.99N,72.43W,New York,Northeast
+Hayward,37.78N,122.03W,California,West
+Henderson,36.17N,115.36W,Nevada,West
+Hialeah,26.52N,80.60W,Florida,South
+Highlands Ranch,39.38N,104.05W,Colorado,West
+Hollywood,26.52N,80.60W,Florida,South
+Houston,29.74N,96.00W,Texas,South
+Huntington Beach,32.95N,117.77W,California,West
+Huntsville,34.56N,85.62W,Alabama,South
+Independence,39.38N,93.64W,Missouri,Midwest
+Indianapolis,39.38N,85.32W,Indiana,Midwest
+Inglewood,34.56N,118.70W,California,West
+Irvine,32.95N,117.77W,California,West
+Irving,32.95N,96.70W,Texas,South
+Jackson,32.95N,90.96W,Mississippi,South
+Jacksonville,29.74N,81.23W,Florida,South
+Jersey City,40.99N,74.56W,New Jersey,Northeast
+Joliet,40.99N,87.34W,Indiana,Midwest
+Kansas City,39.38N,93.64W,Missouri,Midwest
+Killeen,31.35N,98.01W,Texas,South
+Knoxville,36.17N,83.54W,Tennessee,South
+Lafayette,29.74N,92.31W,Louisiana,South
+Lakewood,39.38N,104.05W,Colorado,West
+Lancaster,34.56N,118.70W,California,West
+Lansing,42.59N,85.09W,Michigan,Midwest
+Laredo,28.13N,99.09W,Texas,South
+Las Vegas,36.17N,115.36W,Nevada,West
+Lexington Fayette,37.78N,85.42W,Kentucky,South
+Lincoln,40.99N,95.86W,Nebraska,Midwest
+Little Rock,34.56N,91.46W,Arkansas,South
+Long Beach,32.95N,117.77W,California,West
+Los Angeles,34.56N,118.70W,California,West
+Louisville,37.78N,85.42W,Kentucky,South
+Lowell,42.59N,72.00W,Massachusetts,Northeast
+Lubbock,32.95N,102.45W,Texas,South
+Madison,42.59N,89.45W,Wisconsin,Midwest
+Manchester,42.59N,72.00W,Massachusetts,Northeast
+Memphis,34.56N,89.51W,Mississippi,South
+Mesa,32.95N,112.02W,Arizona,West
+Mesquite,32.95N,96.70W,Texas,South
+Metairie,29.74N,90.46W,Louisiana,South
+Miami,26.52N,80.60W,Florida,South
+Milwaukee,42.59N,87.27W,Wisconsin,Midwest
+Minneapolis,45.81N,93.46W,Minnesota,Midwest
+Miramar,26.52N,80.60W,Florida,South
+Mobile,31.35N,88.59W,Mississippi,South
+Modesto,37.78N,120.00W,California,West
+Montgomery,32.95N,87.13W,Alabama,South
+Moreno Valley,34.56N,116.76W,California,West
+Naperville,40.99N,87.34W,Indiana,Midwest
+Nashville,36.17N,87.51W,Tennessee,South
+New Haven,40.99N,72.43W,New York,Northeast
+New Orleans,29.74N,90.46W,Louisiana,South
+New York,40.99N,74.56W,New Jersey,Northeast
+Newark,40.99N,74.56W,New Jersey,Northeast
+Newport News,37.78N,77.29W,Virginia,South
+Nogales,31.35N,111.20W,Arizona,West
+Norfolk,36.17N,75.58W,North Carolina,South
+Norman,34.56N,97.30W,Oklahoma,South
+North Las Vegas,36.17N,115.36W,Nevada,West
+Norwalk,34.56N,118.70W,California,West
+Nuevo Laredo,28.13N,99.09W,Texas,South
+Oakland,37.78N,122.03W,California,West
+Oceanside,32.95N,117.77W,California,West
+Oklahoma City,36.17N,97.46W,Oklahoma,South
+Olathe,39.38N,95.72W,Kansas,Midwest
+Omaha,40.99N,95.86W,Nebraska,Midwest
+Ontario,34.56N,116.76W,California,West
+Orange,32.95N,117.77W,California,West
+Orlando,28.13N,80.91W,Florida,South
+Overland Park,39.38N,93.64W,Missouri,Midwest
+Oxnard,34.56N,118.70W,California,West
+Palmdale,34.56N,118.70W,California,West
+Paradise,36.17N,115.36W,Nevada,West
+Pasadena,34.56N,118.70W,California,West
+Pasadena,29.74N,96.00W,Texas,South
+Paterson,40.99N,74.56W,New Jersey,Northeast
+Pembroke Pines,26.52N,80.60W,Florida,South
+Peoria,40.99N,89.47W,Illinois,Midwest
+Peoria,32.95N,112.02W,Arizona,West
+Philadelphia,39.38N,74.91W,New Jersey,Northeast
+Phoenix,32.95N,112.02W,Arizona,West
+Pittsburgh,40.99N,80.95W,Ohio,Midwest
+Plano,32.95N,96.70W,Texas,South
+Pomona,34.56N,118.70W,California,West
+Port Saint Lucie,26.52N,80.60W,Florida,South
+Portland,45.81N,123.46W,Oregon,West
+Providence,42.59N,72.00W,Massachusetts,Northeast
+Provo,39.38N,112.37W,Utah,West
+Pueblo,37.78N,103.73W,Colorado,West
+Raleigh,36.17N,79.56W,North Carolina,South
+Rancho Cucamonga,34.56N,116.76W,California,West
+Reno,39.38N,120.69W,California,West
+Rialto,34.56N,116.76W,California,West
+Richardson,32.95N,96.70W,Texas,South
+Richmond,37.78N,77.29W,Virginia,South
+Richmond,37.78N,122.03W,California,West
+Riverside,34.56N,116.76W,California,West
+Rochester,42.59N,78.55W,New York,Northeast
+Rockford,42.59N,89.45W,Wisconsin,Midwest
+Roseville,39.38N,120.69W,California,West
+Sacramento,37.78N,122.03W,California,West
+Saint Louis,39.38N,89.48W,Illinois,Midwest
+Saint Paul,45.81N,93.46W,Minnesota,Midwest
+Saint Petersburg,28.13N,82.73W,Florida,South
+Salem,44.20N,122.98W,Oregon,West
+Salinas,36.17N,121.33W,California,West
+Salt Lake City,40.99N,112.90W,Utah,West
+San Antonio,29.74N,97.85W,Texas,South
+San Bernardino,34.56N,116.76W,California,West
+San Diego,32.95N,117.77W,California,West
+San Francisco,37.78N,122.03W,California,West
+San Jose,37.78N,122.03W,California,West
+Santa Ana,32.95N,117.77W,California,West
+Santa Clara,37.78N,122.03W,California,West
+Santa Clarita,34.56N,118.70W,California,West
+Santa Rosa,37.78N,122.03W,California,West
+Savannah,31.35N,81.05W,Georgia,South
+Scottsdale,32.95N,112.02W,Arizona,West
+Seattle,47.42N,121.97W,Washington,West
+Shreveport,32.95N,92.87W,Louisiana,South
+Simi Valley,34.56N,118.70W,California,West
+Sioux Falls,44.20N,96.15W,Minnesota,Midwest
+South Bend,40.99N,85.21W,Indiana,Midwest
+Spokane,47.42N,117.24W,Washington,West
+Spring Valley,36.17N,115.36W,Nevada,West
+Springfield,42.59N,72.00W,Massachusetts,Northeast
+Springfield,39.38N,89.48W,Illinois,Midwest
+Springfield,37.78N,93.56W,Missouri,Midwest
+Stamford,40.99N,74.56W,New Jersey,Northeast
+Sterling Heights,42.59N,82.91W,Michigan,Midwest
+Stockton,37.78N,122.03W,California,West
+Sunnyvale,37.78N,122.03W,California,West
+Sunrise Manor,36.17N,115.36W,Nevada,West
+Syracuse,42.59N,76.36W,New York,Northeast
+Tacoma,47.42N,121.97W,Washington,West
+Tallahassee,29.74N,84.92W,Florida,South
+Tampa,28.13N,82.73W,Florida,South
+Tempe,32.95N,112.02W,Arizona,West
+Thornton,39.38N,104.05W,Colorado,West
+Thousand Oaks,34.56N,118.70W,California,West
+Toledo,40.99N,83.08W,Ohio,Midwest
+Toms River,39.38N,74.91W,New Jersey,Northeast
+Topeka,39.38N,95.72W,Kansas,Midwest
+Torrance,34.56N,118.70W,California,West
+Tucson,31.35N,111.20W,Arizona,West
+Tulsa,36.17N,95.47W,Oklahoma,South
+Vallejo,37.78N,122.03W,California,West
+Vancouver,45.81N,123.46W,Oregon,West
+Virginia Beach,36.17N,75.58W,North Carolina,South
+Visalia,36.17N,119.34W,California,West
+Waco,31.35N,98.01W,Texas,South
+Warren,42.59N,82.91W,Michigan,Midwest
+Washington,39.38N,76.99W,Maryland,South
+Waterbury,40.99N,72.43W,New York,Northeast
+West Covina,34.56N,118.70W,California,West
+West Jordan,40.99N,112.90W,Utah,West
+West Valley City,40.99N,112.90W,Utah,West
+Westminster,39.38N,104.05W,Colorado,West
+Wichita,37.78N,97.63W,Kansas,Midwest
+Wichita Falls,34.56N,99.24W,Oklahoma,South
+Windsor,42.59N,82.91W,Michigan,Midwest
+Winston Salem,36.17N,79.56W,North Carolina,South
+Worcester,42.59N,72.00W,Massachusetts,Northeast
+Yonkers,40.99N,74.56W,New Jersey,Northeast

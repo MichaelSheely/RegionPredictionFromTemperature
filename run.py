@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 from sklearn.pipeline import Pipeline
-from sklearn.model_selection import train_test_split
+#from sklearn.model_selection import train_test_split
+from sklearn.cross_validation import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from tsfresh.transformers import RelevantFeatureAugmenter
 from tsfresh.transformers import FeatureAugmenter
@@ -38,6 +39,7 @@ def split_data(df, city_regions):
     X_cities = city_regions['City']
     X_cities = X_cities.apply(number_cities)
     y_regions = city_regions['Region']
+    y_regions = y_regions.apply(number_regions)
 
     y_train, y_test = train_test_split(y_regions)
     df_train = df.loc[df.City.isin(y_train.index)]
@@ -69,8 +71,17 @@ def run(filename='data/joined.csv', city_regions_file='data/CityRegions.csv'):
 
     feature_extraction_settings = FeatureExtractionSettings()
     feature_extraction_settings.IMPUTE = impute
-    pipeline = Pipeline([('augmenter', FeatureAugmenter(feature_extraction_settings, column_id='City', column_sort='dt', column_value='AverageTemperature')),
-                    ('classifier', DecisionTreeClassifier(criterion='entropy'))])
+    aug = FeatureAugmenter(feature_extraction_settings, column_id='City',
+                    column_sort='dt', column_value='AverageTemperature',
+                    timeseries_container=train['df'])
+    output = aug.fit_transform(train['X'], train['y'])
+    output.to_csv('features_from_tsfresh.csv', index=False)
+
+    # DecisionTreeClassifier(criterion='entropy')
+    #pipeline = Pipeline([('augmenter', FeatureAugmenter(feature_extraction_settings, column_id='City', column_sort='dt', column_value='AverageTemperature')),
+    #                ('classifier', DecisionTreeClassifier(criterion='entropy'))])
+    #pipeline = Pipeline([('augmenter', RelevantFeatureAugmenter(column_id='City', column_sort='dt', column_value='AverageTemperature')),
+    #                ('classifier', DecisionTreeClassifier(criterion='entropy'))])
 
     # for the fit on the train test set, we set the fresh__timeseries_container to `df_train`
     pipeline.set_params(augmenter__timeseries_container=train['df'])

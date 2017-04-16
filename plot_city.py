@@ -9,7 +9,8 @@ df.dropna(inplace=True)
 city_name = ""
 if len(sys.argv) < 2:
     city_name = "Fresno"
-city_name = sys.argv[1]
+else:
+    city_name = sys.argv[1]
 
 city_frame = df[df['City'] == city_name]
 ts = pd.Series(city_frame['AverageTemperature'], index=city_frame['dt'])

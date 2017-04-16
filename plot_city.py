@@ -13,7 +13,13 @@ else:
     city_name = sys.argv[1]
 
 city_frame = df[df['City'] == city_name]
-ts = pd.Series(city_frame['AverageTemperature'], index=city_frame['dt'])
+print city_frame['AverageTemperature']
+ts = city_frame['AverageTemperature']
+print ts
+ts.index = city_frame['dt']
+#ts = pd.Series(city_frame['AverageTemperature'], index=city_frame['dt'])
+print ts
+
 ts.cumsum()
 ts.plot()
 

@@ -36,8 +36,8 @@ def number_regions(row):
 
 def split_data(df, city_regions):
     # Get the mapping from each unique city to each region
-    X_cities = city_regions['City']
-    X_cities = X_cities.apply(number_cities)
+    orig_cities = city_regions['City']
+    X_cities = orig_cities.apply(number_cities)
     y_regions = city_regions['Region']
     y_regions = y_regions.apply(number_regions)
 
@@ -46,8 +46,10 @@ def split_data(df, city_regions):
     df_test = df.loc[df.City.isin(y_test.index)]
     X_train = pd.DataFrame(index=y_train.index)
     X_test = pd.DataFrame(index=y_test.index)
-    train = {'df': df_train, 'X': X_train, 'y': y_train}
-    test = {'df': df_test, 'X': X_test, 'y': y_test}
+    train_names = orig_cities[y_train.index]
+    test_names = orig_cities[y_test.index]
+    train = {'df': df_train, 'X': X_train, 'y': y_train, 'city_names': train_names}
+    test = {'df': df_test, 'X': X_test, 'y': y_test, 'city_names': test_names}
     return (train, test)
 
 def run(filename='data/joined.csv', city_regions_file='data/CityRegions.csv'):
@@ -75,6 +77,7 @@ def run(filename='data/joined.csv', city_regions_file='data/CityRegions.csv'):
                     column_sort='dt', column_value='AverageTemperature',
                     timeseries_container=train['df'])
     output = aug.fit_transform(train['X'], train['y'])
+    output['City_Name'] = train['city_names'
     output.to_csv('features_from_tsfresh.csv', index=False)
 
     # DecisionTreeClassifier(criterion='entropy')

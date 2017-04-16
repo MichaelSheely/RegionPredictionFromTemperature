@@ -33,7 +33,7 @@ def number_regions(row):
     return None
 
 
-def split_data(df, city_regions): 
+def split_data(df, city_regions):
     # Get the mapping from each unique city to each region
     X_cities = city_regions['City']
     X_cities = X_cities.apply(number_cities)
@@ -56,17 +56,17 @@ def run(filename='data/joined.csv', city_regions_file='data/CityRegions.csv'):
     df = df[X_labels]
     df = df.dropna()
     df['City'] = df['City'].apply(number_cities)
-    
+
 
     if city_regions_file == None:
         temp = [['Abiline', 'South'],['West Jordon', 'West' ], ['Yonkers', 'Northeast']]
         city_regions = pd.DataFrame(temp, columns=['City', 'Region'])
     else:
         city_regions = pd.read_csv(city_regions_file, header=0)
-   
+
     print city_regions
     train, test = split_data(df, city_regions)
-    
+
     feature_extraction_settings = FeatureExtractionSettings()
     feature_extraction_settings.IMPUTE = impute
     pipeline = Pipeline([('augmenter', FeatureAugmenter(feature_extraction_settings, column_id='City', column_sort='dt', column_value='AverageTemperature')),

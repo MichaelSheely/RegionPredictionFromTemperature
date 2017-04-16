@@ -42,8 +42,8 @@ def split_data(df, city_regions):
     y_regions = y_regions.apply(number_regions)
 
     y_train, y_test = train_test_split(y_regions)
-    df_train = df.loc[df.City.isin(y_train.index)]
-    df_test = df.loc[df.City.isin(y_test.index)]
+    df_train = df.loc[df.City.isin(y_train)]
+    df_test = df.loc[df.City.isin(y_test)]
     X_train = pd.DataFrame(index=y_train.index)
     X_test = pd.DataFrame(index=y_test.index)
     train_names = orig_cities[y_train.index]

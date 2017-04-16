@@ -77,7 +77,7 @@ def run(filename='data/joined.csv', city_regions_file='data/CityRegions.csv'):
                     column_sort='dt', column_value='AverageTemperature',
                     timeseries_container=train['df'])
     output = aug.fit_transform(train['X'], train['y'])
-    output['City_Name'] = train['city_names'
+    output['City_Name'] = train['city_names']
     output.to_csv('features_from_tsfresh.csv', index=False)
 
     # DecisionTreeClassifier(criterion='entropy')

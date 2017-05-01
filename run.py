@@ -182,8 +182,9 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
     print "done"
 
     class_names = ['Northeast', 'Midwest', 'West', 'South']
-    plot_confusion_matrix(cm_train, class_names)
-    plt.savefig('train_cm.png')
+    if load_from_file:
+        plot_confusion_matrix(cm_train, class_names)
+        plt.savefig('train_cm.png')
     plt.hold(False)
     plot_confusion_matrix(cm_test, class_names)
     plt.savefig('test_cm.png')

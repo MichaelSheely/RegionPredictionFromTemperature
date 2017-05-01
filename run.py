@@ -48,16 +48,16 @@ def split_data(df, city_regions):
     y_regions = city_regions['Region']
     y_regions = y_regions.apply(number_regions)
 
-    y_train, y_test = train_test_split(y_regions)
+    y_other, y_val = train_test_split(y_regions, random_state=5, test_size=0.1, stratify=y_regions)
+    y_train, y_test = train_test_split(y_other, random_state=10, stratify=y_other)
+    print "Validation cities: ", len(y_val)
+    print orig_cities.iloc[y_val.index]
+    print "Num train: ", len(y_train)
+    print "Num test: ", len(y_test)
     df_train = df.loc[df.CityIndex.isin(y_train.index)]
     df_test = df.loc[df.CityIndex.isin(y_test.index)]
     X_train = pd.DataFrame(index=y_train.index)
     X_test = pd.DataFrame(index=y_test.index)
-    print len(orig_cities)
-    print len(y_train.index)
-    print orig_cities
-    print y_train.index
-    print max(y_train.index)
     train_names = orig_cities.iloc[y_train.index]
     test_names = orig_cities.iloc[y_test.index]
 
@@ -98,18 +98,17 @@ def plot_confusion_matrix(cm, classes,
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
-def run(filename='data/joined.csv', city_regions_file='data/CityRegions.csv'):
+def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'):
     df = pd.read_csv(filename, header=0)
     df.dropna(inplace=True)
 
-    X_labels = ['City', 'State', 'dt', 'AverageTemperature']
+    X_labels = ['City', 'State', 'dt', 'AverageTemperature', 'CityIndex']
     df = df[X_labels]
     df = df.dropna()
     city_state = df[['City', 'State']]
     # Sadness because multiple cities with same name.......
-    hi = city_state.apply(number_cities, axis=1)
-    df['CityIndex'] = city_state.apply(number_cities, axis=1)
-    df.to_csv('data/clean_data.csv', index=False)
+    #df['CityIndex'] = city_state.apply(number_cities, axis=1)
+    #df.to_csv('data/clean_data.csv', index=False)
 
     if city_regions_file == None:
         temp = [['Abiline', 'South'],['West Jordon', 'West' ], ['Yonkers', 'Northeast']]
@@ -119,6 +118,7 @@ def run(filename='data/joined.csv', city_regions_file='data/CityRegions.csv'):
 
 
     train, test = split_data(df, city_regions)
+    quit()
     """
     blah = train['city_names']
     print blah

@@ -49,10 +49,11 @@ def split_data(df, city_regions):
     y_regions = city_regions['Region']
     y_regions = y_regions.apply(number_regions)
 
-    y_other, y_val = train_test_split(y_regions, random_state=5, test_size=0.1, stratify=y_regions)
-    y_train, y_test = train_test_split(y_other, random_state=10, stratify=y_other)
-    print "Validation cities: ", len(y_val)
-    print orig_cities.iloc[y_val.index]
+    #y_other, y_val = train_test_split(y_regions, random_state=5, test_size=0.1, stratify=y_regions)
+    #y_train, y_test = train_test_split(y_other, random_state=10, stratify=y_other)
+    y_train, y_test = train_test_split(y_regions, random_state=10)
+    #print "Validation cities: ", len(y_val)
+    #print orig_cities.iloc[y_val.index]
     print "Num train: ", len(y_train)
     print "Num test: ", len(y_test)
     df_train = df.loc[df.CityIndex.isin(y_train.index)]
@@ -112,14 +113,13 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
     #df.to_csv('data/clean_data.csv', index=False)
 
     if city_regions_file == None:
-        temp = [['Abiline', 'South'],['West Jordon', 'West' ], ['Yonkers', 'Northeast']]
-        city_regions = pd.DataFrame(temp, columns=['City','Region'])
+        temp = [['Abiline', 'Texas','South'],['West Jordon', 'Utah', 'West' ], ['Yonkers','New York', 'Northeast']]
+        city_regions = pd.DataFrame(temp, columns=['City', 'State','Region'])
     else:
         city_regions = pd.read_csv(city_regions_file, header=0).reset_index(drop=True)
 
 
     train, test = split_data(df, city_regions)
-    quit()
     """
     blah = train['city_names']
     print blah
@@ -147,17 +147,20 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
     if load_from_file:
         pipeline = joblib.load('./model.joblib.pkl')
     else:
-        # DecisionTreeClassifier(criterion='entropy')
-        pipeline = Pipeline([('augmenter',
-                              FeatureAugmenter(feature_extraction_settings,
-                                               column_id='CityIndex', column_sort='dt', column_value='AverageTemperature')),
-                        ('classifier', DecisionTreeClassifier(criterion='entropy'))])
+        clf = DecisionTreeClassifier(criterion='entropy')
+        feat_extractor = FeatureAugmenter(feature_extraction_settings,
+                                          column_id='CityIndex', column_sort='dt', column_value='AverageTemperature')
+        pipeline = Pipeline([('augmenter', feat_extractor),
+                        ('classifier', clf)])
         #pipeline = Pipeline([('augmenter', RelevantFeatureAugmenter(column_id='CityIndex', column_sort='dt', column_value='AverageTemperature')),
         #                ('classifier', DecisionTreeClassifier(criterion='entropy'))])
 
         # for the fit on the train test set, we set the fresh__timeseries_container to `df_train`
-        pipeline.set_params(augmenter__timeseries_container=train['df'])
-        pipeline.fit(train['X'], train['y'])
+        feat_extractor.set_timeseries_container(train['df'])
+        output = feat_extractor.fit_transform(train['X'],train['y'])
+        clf.fit(output, train['y'])
+        # pipeline.set_params(augmenter__timeseries_container=train['df'])
+        # pipeline.fit(train['X'], train['y'])
 
         y_pred = pipeline.predict(train['X'])
         y_true = np.array(train['y'])
@@ -166,7 +169,7 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
         print "Confusion matrix for training", cm_train
         # for the predict on the test test set, we set the fresh__timeseries_container to `df_test`
         pipeline.set_params(augmenter__timeseries_container=test['df'])
-        joblib.dump(pipeline, './model.joblib.pkl', compress=9)
+        joblib.dump(pipeline, './model.joblib.pkl')
     #### ENDIF
 
     y_pred = pipeline.predict(test['X'])
@@ -185,9 +188,21 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
     plot_confusion_matrix(cm_test, class_names)
     plt.savefig('test_cm.png')
 
+    if not load_from_file:
+        features = output.columns.values
+        importances = clf.feature_importances_
+        top_n = 20
+        ndx = np.argsort(importances)[::-1]
+        sorted_features = features[ndx][:20]
+        sorted_importances = importances[ndx][:20]
+        print '%80s   %s' %('Feature', 'Importance')
+        for f, i in zip(sorted_features, sorted_importances):
+            print '%80s   %.2f' % (f[20:], i)
+
+
 TEMPERATURE_FILE = 'data/joined.csv'
 test_file = 'data/testSet.csv'
 if __name__ == '__main__':
-    #run(test_file, city_regions_file=None)
-    run(load_from_file=True)
+    #run(test_file, city_regions_file=None, load_from_file=False)
+    run(load_from_file=False)
 

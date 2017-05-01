@@ -4,12 +4,20 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import itertools
+
+from functools import partial
+import multiprocessing
+
+from sklearn import metrics
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import confusion_matrix
 #from sklearn.model_selection import train_test_split
 from sklearn.cross_validation import train_test_split
 from sklearn.externals import joblib
+from sklearn.grid_search import GridSearchCV
+
 from sklearn.tree import DecisionTreeClassifier
+
 from tsfresh.transformers import RelevantFeatureAugmenter
 from tsfresh.transformers import FeatureAugmenter
 from tsfresh.feature_extraction import MinimalFeatureExtractionSettings
@@ -49,11 +57,11 @@ def split_data(df, city_regions):
     y_regions = city_regions['Region']
     y_regions = y_regions.apply(number_regions)
 
-    #y_other, y_val = train_test_split(y_regions, random_state=5, test_size=0.1, stratify=y_regions)
-    #y_train, y_test = train_test_split(y_other, random_state=10, stratify=y_other)
-    y_train, y_test = train_test_split(y_regions, random_state=10)
-    #print "Validation cities: ", len(y_val)
-    #print orig_cities.iloc[y_val.index]
+    y_other, y_val = train_test_split(y_regions, random_state=5, test_size=0.1, stratify=y_regions)
+    y_train, y_test = train_test_split(y_other, random_state=10, stratify=y_other)
+    #y_train, y_test = train_test_split(y_regions, random_state=10)
+    print "Validation cities: ", len(y_val)
+    print orig_cities.iloc[y_val.index]
     print "Num train: ", len(y_train)
     print "Num test: ", len(y_test)
     df_train = df.loc[df.CityIndex.isin(y_train.index)]
@@ -100,7 +108,7 @@ def plot_confusion_matrix(cm, classes,
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
-def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv', load_from_file=True):
+def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv', load_from_file=True, grid_search=False):
     df = pd.read_csv(filename, header=0)
     df.dropna(inplace=True)
 
@@ -150,20 +158,31 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
         clf = DecisionTreeClassifier(criterion='entropy')
         feat_extractor = FeatureAugmenter(feature_extraction_settings,
                                           column_id='CityIndex', column_sort='dt', column_value='AverageTemperature')
+        # feat_extractor = RelevantFeatureAugmenter(column_id='CityIndex', column_sort='dt', column_value='AverageTemperature')
         pipeline = Pipeline([('augmenter', feat_extractor),
-                        ('classifier', clf)])
-        #pipeline = Pipeline([('augmenter', RelevantFeatureAugmenter(column_id='CityIndex', column_sort='dt', column_value='AverageTemperature')),
-        #                ('classifier', DecisionTreeClassifier(criterion='entropy'))])
+                             ('clf', clf)])
 
         # for the fit on the train test set, we set the fresh__timeseries_container to `df_train`
         feat_extractor.set_timeseries_container(train['df'])
         output = feat_extractor.fit_transform(train['X'],train['y'])
+        if grid_search:
+            grid = {'max_features': [10, 20, 30, 50, 100, 200]}
+#                    'max_depth': [1, 25, 50, 100],
+#                    'class_weight': [None, 'balanced'],
+#                    'min_samples_split': [0.1, 0.25, 0.75, 1.0]}
+            scorer = metrics.make_scorer(partial(metrics.accuracy_score))
+            clf = GridSearchCV(clf, grid, scoring=scorer, n_jobs=multiprocessing.cpu_count())
+
         clf.fit(output, train['y'])
         # pipeline.set_params(augmenter__timeseries_container=train['df'])
         # pipeline.fit(train['X'], train['y'])
 
         y_pred = pipeline.predict(train['X'])
         y_true = np.array(train['y'])
+
+        if grid_search:
+            print "Best Parameters found from grid search: "
+            print clf.best_params_
         print "train accuracy ", accuracy_score(y_true, y_pred)
         cm_train = confusion_matrix(y_true, y_pred)
         print "Confusion matrix for training", cm_train
@@ -195,14 +214,14 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
         ndx = np.argsort(importances)[::-1]
         sorted_features = features[ndx][:20]
         sorted_importances = importances[ndx][:20]
-        print '%80s   %s' %('Feature', 'Importance')
+        print '%80s & %s' %('Feature', 'Importance')
         for f, i in zip(sorted_features, sorted_importances):
-            print '%80s   %.2f' % (f[20:], i)
+            print '%80s & %.2f \\' % (f[20:], i)
 
 
 TEMPERATURE_FILE = 'data/joined.csv'
 test_file = 'data/testSet.csv'
 if __name__ == '__main__':
-    #run(test_file, city_regions_file=None, load_from_file=False)
-    run(load_from_file=False)
+    #run(test_file, city_regions_file=None, load_from_file=False, grid_search=True)
+    run(load_from_file=False, grid_search=True)
 

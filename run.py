@@ -10,6 +10,7 @@ from functools import partial
 import multiprocessing
 
 from sklearn import metrics
+from sklearn import tree
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import confusion_matrix
 #from sklearn.model_selection import train_test_split
@@ -25,6 +26,8 @@ from tsfresh.feature_extraction import MinimalFeatureExtractionSettings
 from tsfresh.feature_extraction.settings import FeatureExtractionSettings
 from tsfresh.utilities.dataframe_functions import impute
 from sklearn.metrics import accuracy_score
+
+np.random.seed(2017)
 
 cities_dict = {}
 counter = 0
@@ -57,8 +60,8 @@ def split_data(X, city_regions):
     y_regions = city_regions['Region']
     y_regions = y_regions.apply(number_regions)
 
-    y_other, y_val = train_test_split(y_regions, random_state=5, test_size=0.1, stratify=y_regions)
-    y_train, y_test = train_test_split(y_other, random_state=10, stratify=y_other)
+    y_other, y_val = train_test_split(y_regions, test_size=0.1, stratify=y_regions)
+    y_train, y_test = train_test_split(y_other, stratify=y_other)
     #y_train, y_test = train_test_split(y_regions, random_state=10)
     #print "Validation cities: ", len(y_val)
     #print orig_cities.iloc[y_val.index]
@@ -148,10 +151,13 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
     else:
         output = pd.read_csv(FEATURE_EXTRACTION)
 
+    output = output.drop(['City', 'State', 'Region'], axis=1)
+
     if baseline:
         output = output['AverageTemperature__mean'].to_frame()
+    else:
+        output = output.drop(['AverageTemperature__mean'], axis=1)
 
-    output = output.drop(['City', 'State', 'Region'], axis=1)
     train, test = split_data(output, city_regions)
 
     """
@@ -165,15 +171,15 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
     if load_from_file:
         clf = joblib.load('./model.joblib.pkl')
     else:
-        clf = DecisionTreeClassifier(criterion='entropy')
+        clf = DecisionTreeClassifier(criterion='entropy', max_features=None, min_samples_split=0.75, max_depth=50, class_weight='balanced')
         # feat_extractor = RelevantFeatureAugmenter(column_id='CityIndex', column_sort='dt', column_value='AverageTemperature')
 
         # for the fit on the train test set, we set the fresh__timeseries_container to `df_train`
         if grid_search and not baseline:
-            grid = {'max_features': [10, 20, 30, 50, 100, 200]}
-#                    'max_depth': [1, 25, 50, 100],
-#                    'class_weight': [None, 'balanced'],
-#                    'min_samples_split': [0.1, 0.25, 0.75, 1.0]}
+            grid = {'max_features': [10, 20, 30, 50, 100, 200, None],
+                    'max_depth': [1, 25, 50, 100],
+                    'class_weight': [None, 'balanced'],
+                    'min_samples_split': [0.1, 0.25, 0.75, 1.0]}
             scorer = metrics.make_scorer(partial(metrics.accuracy_score))
             clf = GridSearchCV(clf, grid, scoring=scorer, n_jobs=multiprocessing.cpu_count())
 
@@ -190,7 +196,7 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
 
         print "train accuracy ", accuracy_score(y_true, y_pred)
         cm_train = confusion_matrix(y_true, y_pred)
-        print "Confusion matrix for training", cm_train
+        print "Confusion matrix for training\n", cm_train
         # for the predict on the test test set, we set the fresh__timeseries_container to `df_test`
         joblib.dump(clf, './model.joblib.pkl')
     #### ENDIF
@@ -200,7 +206,7 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
 
     print "test accuracy ", accuracy_score(y_true, y_pred)
     cm_test = confusion_matrix(y_true, y_pred)
-    print "Confusion matrix for testing", cm_test
+    print "Confusion matrix for testing\n", cm_test
     print "done"
 
     class_names = ['Northeast', 'Midwest', 'West', 'South']
@@ -211,9 +217,11 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
     plot_confusion_matrix(cm_test, class_names)
     plt.savefig('test_cm.png')
 
-    if not load_from_file:
+    if not load_from_file and not grid_search:
         features = output.columns.values
         importances = clf.feature_importances_
+        with open("tree_viz.dot", "w") as f:
+            f = tree.export_graphviz(clf, out_file=f)
         top_n = 20
         ndx = np.argsort(importances)[::-1]
         sorted_features = features[ndx][:20]
@@ -227,5 +235,5 @@ TEMPERATURE_FILE = 'data/joined.csv'
 test_file = 'data/testSet.csv'
 if __name__ == '__main__':
     #run(test_file, city_regions_file=None, load_from_file=False, grid_search=True, baseline=False)
-    run(load_from_file=False, grid_search=True)
+    run(load_from_file=False, grid_search=False, baseline=True)
 

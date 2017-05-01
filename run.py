@@ -4,6 +4,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import itertools
+import os.path
 
 from functools import partial
 import multiprocessing
@@ -50,8 +51,7 @@ def number_regions(row):
     return None
 
 
-def split_data(df, city_regions):
-    # Get the mapping from each unique city to each region
+def split_data(X, city_regions):
     orig_cities = city_regions[['City','State']]
     print "Total cities ", len(orig_cities)
     y_regions = city_regions['Region']
@@ -60,19 +60,18 @@ def split_data(df, city_regions):
     y_other, y_val = train_test_split(y_regions, random_state=5, test_size=0.1, stratify=y_regions)
     y_train, y_test = train_test_split(y_other, random_state=10, stratify=y_other)
     #y_train, y_test = train_test_split(y_regions, random_state=10)
-    print "Validation cities: ", len(y_val)
-    print orig_cities.iloc[y_val.index]
+    #print "Validation cities: ", len(y_val)
+    #print orig_cities.iloc[y_val.index]
     print "Num train: ", len(y_train)
     print "Num test: ", len(y_test)
-    df_train = df.loc[df.CityIndex.isin(y_train.index)]
-    df_test = df.loc[df.CityIndex.isin(y_test.index)]
-    X_train = pd.DataFrame(index=y_train.index)
-    X_test = pd.DataFrame(index=y_test.index)
+    X_train = X.iloc[y_train.index] # pd.DataFrame(index=y_train.index)
+    X_test = X.iloc[y_test.index] #pd.DataFrame(index=y_test.index)
     train_names = orig_cities.iloc[y_train.index]
     test_names = orig_cities.iloc[y_test.index]
 
-    train = {'df': df_train, 'X': X_train, 'y': y_train, 'city_names': train_names}
-    test = {'df': df_test, 'X': X_test, 'y': y_test, 'city_names': test_names}
+    train = {'X': X_train, 'y': y_train, 'city_names': train_names}
+    test = {'X': X_test, 'y': y_test, 'city_names': test_names}
+    print train
     return (train, test)
 
 def plot_confusion_matrix(cm, classes,
@@ -108,41 +107,53 @@ def plot_confusion_matrix(cm, classes,
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
-def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv', load_from_file=True, grid_search=False):
-    df = pd.read_csv(filename, header=0)
-    df.dropna(inplace=True)
-
-    X_labels = ['City', 'State', 'dt', 'AverageTemperature', 'CityIndex']
-    df = df[X_labels]
-    df = df.dropna()
-    city_state = df[['City', 'State']]
-    # Sadness because multiple cities with same name.......
-    #df['CityIndex'] = city_state.apply(number_cities, axis=1)
-    #df.to_csv('data/clean_data.csv', index=False)
-
+def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv', load_from_file=True, grid_search=False, baseline=False):
     if city_regions_file == None:
         temp = [['Abiline', 'Texas','South'],['West Jordon', 'Utah', 'West' ], ['Yonkers','New York', 'Northeast']]
         city_regions = pd.DataFrame(temp, columns=['City', 'State','Region'])
     else:
         city_regions = pd.read_csv(city_regions_file, header=0).reset_index(drop=True)
 
+    FEATURE_EXTRACTION='data/data_with_features.csv'
+    if not os.path.isfile(FEATURE_EXTRACTION):
+        df = pd.read_csv(filename, header=0)
+        df.dropna(inplace=True)
 
-    train, test = split_data(df, city_regions)
-    """
-    blah = train['city_names']
-    print blah
-    indices = blah[blah.isin(['Yonkers','Worcester','Winston Salem','Windsor' ,'Wichita' ,'Westminster' ,'West Valley City' ,'West Jordan'])].index
-    print indices
-    print train['df'][train['df']['City'].isin(indices)]
-    print train['df']['City']
-    df = train['df'][train['df']['City'].isin(indices)]
-    X = train['X'][indices]
-    y = train['y'][indices]
-    city_names = train['city_names'][indices]
-    """
+        X_labels = ['City', 'State', 'dt', 'AverageTemperature', 'CityIndex']
+        df = df[X_labels]
+        df = df.dropna()
+        #city_state = df[['City', 'State']]
+        # Sadness because multiple cities with same name.......
+        #df['CityIndex'] = city_state.apply(number_cities, axis=1)
+        #df.to_csv('data/clean_data.csv', index=False)
 
-    feature_extraction_settings = FeatureExtractionSettings()
-    feature_extraction_settings.IMPUTE = impute
+        orig_cities = city_regions[['City','State']]
+        print "Total cities ", len(orig_cities)
+        y_regions = city_regions['Region']
+        y_regions = y_regions.apply(number_regions)
+
+        feature_extraction_settings = FeatureExtractionSettings()
+        feature_extraction_settings.IMPUTE = impute
+        feat_extractor = FeatureAugmenter(feature_extraction_settings,
+                                          column_id='CityIndex', column_sort='dt', column_value='AverageTemperature')
+
+        empty_df = pd.DataFrame(index=y_regions.index)
+        feat_extractor.set_timeseries_container(df)
+        output = feat_extractor.fit_transform(empty_df,y_regions)
+        output['City'] = city_regions['City']
+        output['State'] = city_regions['State']
+        output['Region'] = city_regions['Region']
+
+        output.to_csv(FEATURE_EXTRACTION, index=False)
+    else:
+        output = pd.read_csv(FEATURE_EXTRACTION)
+
+    if baseline:
+        output = output['AverageTemperature__mean'].to_frame()
+
+    output = output.drop(['City', 'State', 'Region'], axis=1)
+    train, test = split_data(output, city_regions)
+
     """
     aug = FeatureAugmenter(feature_extraction_settings, column_id='CityIndex',
                     column_sort='dt', column_value='AverageTemperature',
@@ -150,22 +161,15 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
     output = aug.fit_transform(train['X'], train['y'])
     output['City_Name'] = train['city_names']
     output.to_csv('data/features_from_tsfresh.csv', index=False)
-"""
-
+    """
     if load_from_file:
-        pipeline = joblib.load('./model.joblib.pkl')
+        clf = joblib.load('./model.joblib.pkl')
     else:
         clf = DecisionTreeClassifier(criterion='entropy')
-        feat_extractor = FeatureAugmenter(feature_extraction_settings,
-                                          column_id='CityIndex', column_sort='dt', column_value='AverageTemperature')
         # feat_extractor = RelevantFeatureAugmenter(column_id='CityIndex', column_sort='dt', column_value='AverageTemperature')
-        pipeline = Pipeline([('augmenter', feat_extractor),
-                             ('clf', clf)])
 
         # for the fit on the train test set, we set the fresh__timeseries_container to `df_train`
-        feat_extractor.set_timeseries_container(train['df'])
-        output = feat_extractor.fit_transform(train['X'],train['y'])
-        if grid_search:
+        if grid_search and not baseline:
             grid = {'max_features': [10, 20, 30, 50, 100, 200]}
 #                    'max_depth': [1, 25, 50, 100],
 #                    'class_weight': [None, 'balanced'],
@@ -173,26 +177,25 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
             scorer = metrics.make_scorer(partial(metrics.accuracy_score))
             clf = GridSearchCV(clf, grid, scoring=scorer, n_jobs=multiprocessing.cpu_count())
 
-        clf.fit(output, train['y'])
+        clf.fit(train['X'], train['y'])
         # pipeline.set_params(augmenter__timeseries_container=train['df'])
         # pipeline.fit(train['X'], train['y'])
 
-        y_pred = pipeline.predict(train['X'])
+        y_pred = clf.predict(train['X'])
         y_true = np.array(train['y'])
 
-        if grid_search:
+        if grid_search and not baseline:
             print "Best Parameters found from grid search: "
             print clf.best_params_
+
         print "train accuracy ", accuracy_score(y_true, y_pred)
         cm_train = confusion_matrix(y_true, y_pred)
         print "Confusion matrix for training", cm_train
         # for the predict on the test test set, we set the fresh__timeseries_container to `df_test`
-        pipeline.set_params(augmenter__timeseries_container=test['df'])
-        joblib.dump(pipeline, './model.joblib.pkl')
+        joblib.dump(clf, './model.joblib.pkl')
     #### ENDIF
 
-    y_pred = pipeline.predict(test['X'])
-
+    y_pred = clf.predict(test['X'])
     y_true = np.array(test['y'])
 
     print "test accuracy ", accuracy_score(y_true, y_pred)
@@ -223,6 +226,6 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
 TEMPERATURE_FILE = 'data/joined.csv'
 test_file = 'data/testSet.csv'
 if __name__ == '__main__':
-    #run(test_file, city_regions_file=None, load_from_file=False, grid_search=True)
+    #run(test_file, city_regions_file=None, load_from_file=False, grid_search=True, baseline=False)
     run(load_from_file=False, grid_search=True)
 

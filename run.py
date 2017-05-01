@@ -1,6 +1,11 @@
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import itertools
 from sklearn.pipeline import Pipeline
+from sklearn.metrics import confusion_matrix
 #from sklearn.model_selection import train_test_split
 from sklearn.cross_validation import train_test_split
 from sklearn.tree import DecisionTreeClassifier
@@ -60,25 +65,58 @@ def split_data(df, city_regions):
     test = {'df': df_test, 'X': X_test, 'y': y_test, 'city_names': test_names}
     return (train, test)
 
-def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'):
+def plot_confusion_matrix(cm, classes,
+                          normalize=False,
+                          title='Confusion matrix',
+                          cmap=plt.cm.Blues):
+    """
+    This function prints and plots the confusion matrix.
+    Normalization can be applied by setting `normalize=True`.
+    """
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print('Confusion matrix, without normalization')
+
+    print(cm)
+
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, cm[i, j],
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+
+def run(filename='data/joined.csv', city_regions_file='data/CityRegions.csv'):
     df = pd.read_csv(filename, header=0)
     df.dropna(inplace=True)
 
-    X_labels = ['City', 'State', 'dt', 'AverageTemperature', 'CityIndex']
+    X_labels = ['City', 'State', 'dt', 'AverageTemperature']
     df = df[X_labels]
     df = df.dropna()
     city_state = df[['City', 'State']]
     # Sadness because multiple cities with same name.......
-    #hi = city_state.apply(number_cities, axis=1)
-    #df['CityIndex'] = city_state.apply(number_cities, axis=1)
-    #df.to_csv('data/clean_data.csv', index=False)
+    hi = city_state.apply(number_cities, axis=1)
+    df['CityIndex'] = city_state.apply(number_cities, axis=1)
+    df.to_csv('data/clean_data.csv', index=False)
 
     if city_regions_file == None:
         temp = [['Abiline', 'South'],['West Jordon', 'West' ], ['Yonkers', 'Northeast']]
         city_regions = pd.DataFrame(temp, columns=['City','Region'])
     else:
         city_regions = pd.read_csv(city_regions_file, header=0).reset_index(drop=True)
-        
+
 
     train, test = split_data(df, city_regions)
     """
@@ -94,41 +132,49 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
     city_names = train['city_names'][indices]
     """
 
-    
     feature_extraction_settings = FeatureExtractionSettings()
     feature_extraction_settings.IMPUTE = impute
+    """
     aug = FeatureAugmenter(feature_extraction_settings, column_id='CityIndex',
                     column_sort='dt', column_value='AverageTemperature',
                     timeseries_container=train['df'])
     output = aug.fit_transform(train['X'], train['y'])
     output['City_Name'] = train['city_names']
     output.to_csv('data/features_from_tsfresh.csv', index=False)
-
+"""
     # DecisionTreeClassifier(criterion='entropy')
-    #pipeline = Pipeline([('augmenter', FeatureAugmenter(feature_extraction_settings, column_id='City', column_sort='dt', column_value='AverageTemperature')),
-    #                ('classifier', DecisionTreeClassifier(criterion='entropy'))])
-    #pipeline = Pipeline([('augmenter', RelevantFeatureAugmenter(column_id='City', column_sort='dt', column_value='AverageTemperature')),
+    pipeline = Pipeline([('augmenter',
+                          FeatureAugmenter(feature_extraction_settings,
+                                           column_id='CityIndex', column_sort='dt', column_value='AverageTemperature')),
+                    ('classifier', DecisionTreeClassifier(criterion='entropy'))])
+    #pipeline = Pipeline([('augmenter', RelevantFeatureAugmenter(column_id='CityIndex', column_sort='dt', column_value='AverageTemperature')),
     #                ('classifier', DecisionTreeClassifier(criterion='entropy'))])
 
     # for the fit on the train test set, we set the fresh__timeseries_container to `df_train`
-    """
     pipeline.set_params(augmenter__timeseries_container=train['df'])
     pipeline.fit(train['X'], train['y'])
 
     y_pred = pipeline.predict(train['X'])
     y_true = np.array(train['y'])
     print "train accuracy ", accuracy_score(y_true, y_pred)
-    """
+    cm_train = confusion_matrix(y_true, y_pred)
+    print "Confusion matrix for training", cm_train
     # for the predict on the test test set, we set the fresh__timeseries_container to `df_test`
-    """
     pipeline.set_params(augmenter__timeseries_container=test['df'])
     y_pred = pipeline.predict(test['X'])
 
     y_true = np.array(test['y'])
-    """
 
     print "test accuracy ", accuracy_score(y_true, y_pred)
+    cm_test = confusion_matrix(y_true, y_pred)
+    print "Confusion matrix for testing", cm_test
     print "done"
+
+    class_names = ['Northeast', 'Midwest', 'West', 'South']
+    plot_confusion_matrix(cm_train, class_names)
+    plt.savefig('train_cm.png')
+    plot_confusion_matrix(cm_test, class_names)
+    plt.savefig('test_cm.png')
 
 TEMPERATURE_FILE = 'data/joined.csv'
 test_file = 'data/testSet.csv'

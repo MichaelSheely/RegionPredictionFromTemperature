@@ -8,6 +8,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.metrics import confusion_matrix
 #from sklearn.model_selection import train_test_split
 from sklearn.cross_validation import train_test_split
+from sklearn.externals import joblib
 from sklearn.tree import DecisionTreeClassifier
 from tsfresh.transformers import RelevantFeatureAugmenter
 from tsfresh.transformers import FeatureAugmenter
@@ -98,7 +99,7 @@ def plot_confusion_matrix(cm, classes,
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
-def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'):
+def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv', load_from_file=True):
     df = pd.read_csv(filename, header=0)
     df.dropna(inplace=True)
 
@@ -142,25 +143,32 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
     output['City_Name'] = train['city_names']
     output.to_csv('data/features_from_tsfresh.csv', index=False)
 """
-    # DecisionTreeClassifier(criterion='entropy')
-    pipeline = Pipeline([('augmenter',
-                          FeatureAugmenter(feature_extraction_settings,
-                                           column_id='CityIndex', column_sort='dt', column_value='AverageTemperature')),
-                    ('classifier', DecisionTreeClassifier(criterion='entropy'))])
-    #pipeline = Pipeline([('augmenter', RelevantFeatureAugmenter(column_id='CityIndex', column_sort='dt', column_value='AverageTemperature')),
-    #                ('classifier', DecisionTreeClassifier(criterion='entropy'))])
 
-    # for the fit on the train test set, we set the fresh__timeseries_container to `df_train`
-    pipeline.set_params(augmenter__timeseries_container=train['df'])
-    pipeline.fit(train['X'], train['y'])
+    if load_from_file:
+        pipeline = joblib.load('./model.joblib.pkl')
+    else:
+        # DecisionTreeClassifier(criterion='entropy')
+        pipeline = Pipeline([('augmenter',
+                              FeatureAugmenter(feature_extraction_settings,
+                                               column_id='CityIndex', column_sort='dt', column_value='AverageTemperature')),
+                        ('classifier', DecisionTreeClassifier(criterion='entropy'))])
+        #pipeline = Pipeline([('augmenter', RelevantFeatureAugmenter(column_id='CityIndex', column_sort='dt', column_value='AverageTemperature')),
+        #                ('classifier', DecisionTreeClassifier(criterion='entropy'))])
 
-    y_pred = pipeline.predict(train['X'])
-    y_true = np.array(train['y'])
-    print "train accuracy ", accuracy_score(y_true, y_pred)
-    cm_train = confusion_matrix(y_true, y_pred)
-    print "Confusion matrix for training", cm_train
-    # for the predict on the test test set, we set the fresh__timeseries_container to `df_test`
-    pipeline.set_params(augmenter__timeseries_container=test['df'])
+        # for the fit on the train test set, we set the fresh__timeseries_container to `df_train`
+        pipeline.set_params(augmenter__timeseries_container=train['df'])
+        pipeline.fit(train['X'], train['y'])
+
+        y_pred = pipeline.predict(train['X'])
+        y_true = np.array(train['y'])
+        print "train accuracy ", accuracy_score(y_true, y_pred)
+        cm_train = confusion_matrix(y_true, y_pred)
+        print "Confusion matrix for training", cm_train
+        # for the predict on the test test set, we set the fresh__timeseries_container to `df_test`
+        pipeline.set_params(augmenter__timeseries_container=test['df'])
+        joblib.dump(pipeline, './model.joblib.pkl', compress=9)
+    #### ENDIF
+
     y_pred = pipeline.predict(test['X'])
 
     y_true = np.array(test['y'])
@@ -173,6 +181,7 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
     class_names = ['Northeast', 'Midwest', 'West', 'South']
     plot_confusion_matrix(cm_train, class_names)
     plt.savefig('train_cm.png')
+    plt.hold(False)
     plot_confusion_matrix(cm_test, class_names)
     plt.savefig('test_cm.png')
 
@@ -180,5 +189,5 @@ TEMPERATURE_FILE = 'data/joined.csv'
 test_file = 'data/testSet.csv'
 if __name__ == '__main__':
     #run(test_file, city_regions_file=None)
-    run()
+    run(load_from_file=True)
 

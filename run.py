@@ -187,10 +187,12 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
         # pipeline.set_params(augmenter__timeseries_container=train['df'])
         # pipeline.fit(train['X'], train['y'])
 
-        y_pred = clf.predict(train['X'])
-        y_true = np.array(train['y'])
-        new_df = [city_regions, train['y'], y_pred]
-        result = pd.concat(new_df)
+        y_pred = pd.Series(clf.predict(train['X']))
+        y_true = pd.Series(np.array(train['y']))
+        result = train['city_names']
+        print result.shape
+        result['Orig'] = y_true
+        result['Pred'] = y_pred
         
         result.to_csv('data/results.csv', index=False)
 
@@ -239,5 +241,5 @@ TEMPERATURE_FILE = 'data/joined.csv'
 test_file = 'data/testSet.csv'
 if __name__ == '__main__':
     #run(test_file, city_regions_file=None, load_from_file=False, grid_search=True, baseline=False)
-    run(load_from_file=False, grid_search=False, baseline=True)
+    run(load_from_file=False, grid_search=False, baseline=False)
 

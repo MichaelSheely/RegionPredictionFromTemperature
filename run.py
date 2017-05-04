@@ -190,10 +190,9 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
         y_pred = pd.Series(clf.predict(train['X']))
         y_true = pd.Series(np.array(train['y']))
         result = train['city_names']
-        print result.shape
+        result.reset_index(drop=True, inplace=True)
         result['Orig'] = y_true
         result['Pred'] = y_pred
-        
         result.to_csv('data/results.csv', index=False)
 
         if grid_search and not baseline:

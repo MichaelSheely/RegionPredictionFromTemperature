@@ -189,6 +189,10 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
 
         y_pred = clf.predict(train['X'])
         y_true = np.array(train['y'])
+        new_df = [city_regions, train['y'], y_pred]
+        result = pd.concat(new_df)
+        
+        result.to_csv('data/results.csv', index=False)
 
         if grid_search and not baseline:
             print "Best Parameters found from grid search: "

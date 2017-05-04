@@ -67,15 +67,18 @@ def split_data(X, city_regions):
     print "Num test: ", len(y_test)
     X_train = X.iloc[y_train.index] # pd.DataFrame(index=y_train.index)
     X_test = X.iloc[y_test.index] #pd.DataFrame(index=y_test.index)
+    X_validate = X.iloc[y_val.index] #pd.DataFrame(index=y_test.index)
     train_names = orig_cities.iloc[y_train.index]
     test_names = orig_cities.iloc[y_test.index]
+    val_names = orig_cities.iloc[y_val.index]
 
     train = {'X': X_train, 'y': y_train, 'city_names': train_names}
     test = {'X': X_test, 'y': y_test, 'city_names': test_names}
+    validation = {'X': X_test, 'y': y_test, 'city_names': val_names}
     for things in [train, test]:
         for _, matrix in things.iteritems():
             matrix.reset_index(drop=True, inplace=True)
-    return (train, test)
+    return (train, test, validation)
 
 def plot_confusion_matrix(cm, classes,
                           normalize=False,
@@ -155,10 +158,8 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
 
     if baseline:
         output = output['AverageTemperature__mean'].to_frame()
-    else:
-        output = output.drop(['AverageTemperature__mean'], axis=1)
 
-    train, test = split_data(output, city_regions)
+    train, test, validation = split_data(output, city_regions)
 
     """
     aug = FeatureAugmenter(feature_extraction_settings, column_id='CityIndex',
@@ -171,10 +172,8 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
     if load_from_file:
         clf = joblib.load('./model.joblib.pkl')
     else:
-        if baseline:
-            clf = DecisionTreeClassifier(criterion='entropy', min_samples_split=0.1, max_depth=50, class_weight=None)
-        else:
-            clf = DecisionTreeClassifier(criterion='entropy', max_features=None, min_samples_split=0.1, max_depth=50, class_weight=None)
+        clf = DecisionTreeClassifier(criterion='entropy', max_features=None,
+                                     min_samples_split=0.1, max_depth=50, class_weight=None)
         # feat_extractor = RelevantFeatureAugmenter(column_id='CityIndex', column_sort='dt', column_value='AverageTemperature')
 
         # for the fit on the train test set, we set the fresh__timeseries_container to `df_train`
@@ -218,11 +217,13 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
     print "done"
 
     class_names = ['Northeast', 'Midwest', 'West', 'South']
-    if load_from_file:
+    if not load_from_file:
         plot_confusion_matrix(cm_train, class_names)
+        plt.tight_layout()
         plt.savefig('train_cm.png')
     plt.hold(False)
     plot_confusion_matrix(cm_test, class_names)
+    plt.tight_layout()
     plt.savefig('test_cm.png')
 
     if not load_from_file and not grid_search:
@@ -236,13 +237,26 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
         sorted_importances = importances[ndx][:20]
         print '%80s & %s' %('Feature', 'Importance')
         for f, i in zip(sorted_features, sorted_importances):
-            print '%80s & %.2f \\' % (f[20:], i)
+            # print '%80s & %.2f \\\\' % (f[20:], i)
+            print '%s & %.2f \\\\' % (f[20:], i)
 
+    y_pred = clf.predict(validation['X'])
+    y_true = np.array(validation['y'])
+
+    print "validation accuracy ", accuracy_score(y_true, y_pred)
+    cm_val = confusion_matrix(y_true, y_pred)
+    print "Confusion matrix for validation\n", cm_test
+    print "done"
+
+    class_names = ['Northeast', 'Midwest', 'West', 'South']
+    plt.hold(False)
+    plot_confusion_matrix(cm_val, class_names)
+    plt.tight_layout()
+    plt.savefig('val_cm.png')
 
 TEMPERATURE_FILE = 'data/joined.csv'
 test_file = 'data/testSet.csv'
 if __name__ == '__main__':
     #run(test_file, city_regions_file=None, load_from_file=False, grid_search=True, baseline=False)
     run(load_from_file=False, grid_search=False, baseline=False)
-
 

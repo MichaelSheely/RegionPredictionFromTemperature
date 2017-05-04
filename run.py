@@ -35,7 +35,6 @@ def number_cities(row):
     global counter
     key = (row[0],row[1])
     if not key in cities_dict:
-        print key
         cities_dict[key] = counter
         counter += 1
     return cities_dict[key]
@@ -56,7 +55,6 @@ def number_regions(row):
 
 def split_data(X, city_regions):
     orig_cities = city_regions[['City','State']]
-    print "Total cities ", len(orig_cities)
     y_regions = city_regions['Region']
     y_regions = y_regions.apply(number_regions)
 
@@ -74,7 +72,9 @@ def split_data(X, city_regions):
 
     train = {'X': X_train, 'y': y_train, 'city_names': train_names}
     test = {'X': X_test, 'y': y_test, 'city_names': test_names}
-    print train
+    for things in [train, test]:
+        for _, matrix in things.iteritems():
+            matrix.reset_index(drop=True, inplace=True)
     return (train, test)
 
 def plot_confusion_matrix(cm, classes,
@@ -171,7 +171,10 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
     if load_from_file:
         clf = joblib.load('./model.joblib.pkl')
     else:
-        clf = DecisionTreeClassifier(criterion='entropy', max_features=None, min_samples_split=0.75, max_depth=50, class_weight='balanced')
+        if baseline:
+            clf = DecisionTreeClassifier(criterion='entropy', min_samples_split=0.1, max_depth=50, class_weight=None)
+        else:
+            clf = DecisionTreeClassifier(criterion='entropy', max_features=None, min_samples_split=0.1, max_depth=50, class_weight=None)
         # feat_extractor = RelevantFeatureAugmenter(column_id='CityIndex', column_sort='dt', column_value='AverageTemperature')
 
         # for the fit on the train test set, we set the fresh__timeseries_container to `df_train`
@@ -241,4 +244,5 @@ test_file = 'data/testSet.csv'
 if __name__ == '__main__':
     #run(test_file, city_regions_file=None, load_from_file=False, grid_search=True, baseline=False)
     run(load_from_file=False, grid_search=False, baseline=False)
+
 

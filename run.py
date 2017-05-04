@@ -156,7 +156,8 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
     if baseline:
         output = output['AverageTemperature__mean'].to_frame()
     else:
-        output = output.drop(['AverageTemperature__mean'], axis=1)
+        pass
+        #output = output.drop(['AverageTemperature__mean'], axis=1)
 
     train, test = split_data(output, city_regions)
 

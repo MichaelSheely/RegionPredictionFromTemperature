@@ -54,15 +54,15 @@ def number_regions(row):
 
 
 def split_data(X, city_regions):
-    orig_cities = city_regions[['City','State']]
+    orig_cities = city_regions
     y_regions = city_regions['Region']
     y_regions = y_regions.apply(number_regions)
 
     y_other, y_val = train_test_split(y_regions, test_size=0.1, stratify=y_regions)
     y_train, y_test = train_test_split(y_other, stratify=y_other)
     #y_train, y_test = train_test_split(y_regions, random_state=10)
-    #print "Validation cities: ", len(y_val)
-    #print orig_cities.iloc[y_val.index]
+    print "Validation cities: ", len(y_val)
+    print orig_cities.iloc[y_val.index]
     print "Num train: ", len(y_train)
     print "Num test: ", len(y_test)
     X_train = X.iloc[y_train.index] # pd.DataFrame(index=y_train.index)
@@ -74,7 +74,7 @@ def split_data(X, city_regions):
 
     train = {'X': X_train, 'y': y_train, 'city_names': train_names}
     test = {'X': X_test, 'y': y_test, 'city_names': test_names}
-    validation = {'X': X_test, 'y': y_test, 'city_names': val_names}
+    validation = {'X': X_validate, 'y': y_val, 'city_names': val_names}
     for things in [train, test]:
         for _, matrix in things.iteritems():
             matrix.reset_index(drop=True, inplace=True)
@@ -178,7 +178,7 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
 
         # for the fit on the train test set, we set the fresh__timeseries_container to `df_train`
         if grid_search and not baseline:
-            grid = {'max_features': [10, 20, 30, 50, 100, 200, None],
+            grid = {'max_features': [2, 10, 20, 30, 50, 100, 200, None],
                     'max_depth': [1, 25, 50, 100],
                     'class_weight': [None, 'balanced'],
                     'min_samples_split': [0.1, 0.25, 0.75, 1.0]}
@@ -195,7 +195,10 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
         result.reset_index(drop=True, inplace=True)
         result['Orig'] = y_true
         result['Pred'] = y_pred
-        result.to_csv('data/results.csv', index=False)
+        wrongs = y_true == y_pred
+        result['Correct'] = wrongs
+        result.to_csv('data/results_train.csv', index=False)
+        
 
         if grid_search and not baseline:
             print "Best Parameters found from grid search: "
@@ -208,13 +211,19 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
         joblib.dump(clf, './model.joblib.pkl')
     #### ENDIF
 
-    y_pred = clf.predict(test['X'])
-    y_true = np.array(test['y'])
-
+    y_pred = pd.Series(clf.predict(test['X']))
+    y_true = pd.Series(np.array(test['y']))
+    result = test['city_names']
+    result.reset_index(drop=True, inplace=True)
+    result['Orig'] = y_true
+    result['Pred'] = y_pred
+    wrongs = y_true == y_pred
+    result['Correct'] = wrongs
+    result.to_csv('data/results_test.csv', index=False)
+    
     print "test accuracy ", accuracy_score(y_true, y_pred)
     cm_test = confusion_matrix(y_true, y_pred)
     print "Confusion matrix for testing\n", cm_test
-    print "done"
 
     class_names = ['Northeast', 'Midwest', 'West', 'South']
     if not load_from_file:
@@ -243,9 +252,20 @@ def run(filename='data/clean_data.csv', city_regions_file='data/CityRegions.csv'
     y_pred = clf.predict(validation['X'])
     y_true = np.array(validation['y'])
 
+    y_pred = pd.Series(clf.predict(validation['X']))
+    y_true = pd.Series(np.array(validation['y']))
+    result = validation['city_names']
+    result.reset_index(drop=True, inplace=True)
+    result['Orig'] = y_true
+    result['Pred'] = y_pred
+    wrongs = y_true == y_pred
+    result['Correct'] = wrongs
+    result.to_csv('data/results_val.csv', index=False)
+    
+
     print "validation accuracy ", accuracy_score(y_true, y_pred)
     cm_val = confusion_matrix(y_true, y_pred)
-    print "Confusion matrix for validation\n", cm_test
+    print "Confusion matrix for validation\n", cm_val
     print "done"
 
     class_names = ['Northeast', 'Midwest', 'West', 'South']
